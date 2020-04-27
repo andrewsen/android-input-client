@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/login_navigation"
+    app:startDestination="@id/manipulatorFragment">
+    <fragment
+        android:id="@+id/manipulatorFragment"
+        android:name="ua.senko.remoteinput.ui.manipulator.ManipulatorFragment"
+        android:label="manipulator_fragment"
+        tools:layout="@layout/manipulator_fragment" >
+        <action
+            android:id="@+id/action_manipulatorFragment_to_loginFragment"
+            app:destination="@id/loginFragment"
+            app:launchSingleTop="true"
+            app:popUpTo="@id/manipulatorFragment"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:exitAnim="@anim/fragment_open_exit"
+            app:popEnterAnim="@anim/fragment_fade_enter"
+            app:popExitAnim="@anim/fragment_fade_exit" />
+    </fragment>
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="ua.senko.remoteinput.ui.login.LoginFragment"
+        android:label="login_fragment"
+        tools:layout="@layout/login_fragment" />
+</navigation>
