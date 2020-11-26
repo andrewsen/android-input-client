@@ -17,9 +17,7 @@ import ua.senko.remoteinput.R
 import ua.senko.remoteinput.data.Buttons
 import ua.senko.remoteinput.data.Result
 
-class ManipulatorFragment : Fragment()
-{
-
+class ManipulatorFragment : Fragment() {
     companion object {
         const val TAG = "ManipulatorFragment"
 
@@ -80,8 +78,25 @@ class ManipulatorFragment : Fragment()
             initView(it)
             initObservers(it)
 
+            setHasOptionsMenu(true)
             viewModel.connect()
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.manipulator_menu, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.menu_disconnect -> {
+                viewModel.disconnect()
+                viewModel.forget()
+                findNavController().navigate(R.id.action_manipulatorFragment_to_loginFragment)
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     private fun initView(it: View) {
@@ -187,10 +202,5 @@ class ManipulatorFragment : Fragment()
             errorLayout.visibility = View.GONE
             errorText.text = null
         }
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        // TODO: Use the ViewModel
     }
 }

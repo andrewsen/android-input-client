@@ -2,8 +2,10 @@ package ua.senko.remoteinput.ui.manipulator
 
 import android.app.Application
 import android.os.SystemClock
+import android.util.Log
 import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ua.senko.remoteinput.data.AppRepository
@@ -13,6 +15,7 @@ import ua.senko.remoteinput.data.Result
 import ua.senko.remoteinput.helpers.SingleLiveEvent
 import ua.senko.remoteinput.utils.AppConnectionManager
 import ua.senko.remoteinput.utils.AppSensorManager
+import ua.senko.remoteinput.utils.VolumeManager
 import kotlin.math.roundToInt
 
 class ManipulatorViewModel(private val app: Application) : AndroidViewModel(app) {
@@ -24,6 +27,7 @@ class ManipulatorViewModel(private val app: Application) : AndroidViewModel(app)
     private val sensorManager = AppSensorManager(app)
     private val connectionManager = AppConnectionManager(app)
     private val repository = AppRepository.getInstance(app)
+    private val volumeManager = VolumeManager(app.applicationContext)
 
     private var prevGyroData = GyroData(0F, 0F, 0F)
     private var lastAdjustClick = 0L
@@ -50,6 +54,7 @@ class ManipulatorViewModel(private val app: Application) : AndroidViewModel(app)
     })
 
     override fun onCleared() {
+        volumeManager.unregister()
         sensorManager.stop()
     }
 
@@ -63,6 +68,32 @@ class ManipulatorViewModel(private val app: Application) : AndroidViewModel(app)
                 sensorManager.start()
             }
             mutableSensorsInitStatus.postValue(it)
+        }
+
+        volumeManager.setOnVolumeChangedListener {
+            viewModelScope.launch {
+                withContext(Dispatchers.IO) {
+                    adjustVolume(it)
+                }
+            }
+        }
+        volumeManager.register()
+    }
+
+    private suspend fun adjustVolume(delta: Int) {
+        Log.d(TAG, "Volume delta: $delta")
+        if (delta > 0) {
+            for (i in 0 until delta) {
+                setIsButtonPressed(true, Buttons.VOLUME_DOWN)
+                delay(70)
+                setIsButtonPressed(false, Buttons.VOLUME_DOWN)
+            }
+        } else if (delta < 0) {
+            for (i in delta until 0) {
+                setIsButtonPressed(true, Buttons.VOLUME_UP)
+                delay(70)
+                setIsButtonPressed(false, Buttons.VOLUME_UP)
+            }
         }
     }
 
@@ -150,5 +181,14 @@ class ManipulatorViewModel(private val app: Application) : AndroidViewModel(app)
         val sensitivity = scrollSensitivity.value!!
 
         connectionManager.sendScroll((sensitivity * distanceY).toInt())
+    }
+
+    fun disconnect() {
+        connectionManager.disconnect()
+        sensorManager.stop()
+    }
+
+    fun forget() {
+        repository.clearAddress()
     }
 }

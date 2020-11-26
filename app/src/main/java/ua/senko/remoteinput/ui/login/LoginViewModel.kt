@@ -9,19 +9,20 @@ import ua.senko.remoteinput.data.Result
 import java.lang.Exception
 
 class LoginViewModel (app: Application) : AndroidViewModel(app) {
+    companion object {
+        private const val CACHE_ADDRESS = "address"
+    }
+
     private val appRepository = AppRepository.getInstance(app)
 
     private val mutableSaveStatus: MutableLiveData<Result> = MutableLiveData()
     private val mutableCachedAddress: MutableLiveData<String> = MutableLiveData()
 
-    val addressSaveStatus: LiveData<Result>
-        get() = mutableSaveStatus
-
-    val cachedAddress: LiveData<String>
-        get() = mutableCachedAddress
+    val addressSaveStatus: LiveData<Result> = mutableSaveStatus
+    val cachedAddress: LiveData<String> = mutableCachedAddress
 
     init {
-        appRepository.getAddress()?.let{
+        appRepository.getCacheItem(CACHE_ADDRESS)?.let{
             mutableCachedAddress.postValue(it)
         }
     }
@@ -36,5 +37,9 @@ class LoginViewModel (app: Application) : AndroidViewModel(app) {
         }
 
         appRepository.saveAddress(address)
+    }
+
+    fun cacheAddress(address: String) {
+        appRepository.putCacheItem(CACHE_ADDRESS, address)
     }
 }

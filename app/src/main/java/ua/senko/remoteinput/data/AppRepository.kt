@@ -5,6 +5,8 @@ import android.content.Context
 class AppRepository(private val context: Context) {
     companion object {
         const val APP_PREFERENCES = "AppPreferences"
+        const val CACHE_STORAGE = "AppCache"
+
         const val PREFS_ADDRESS = "address"
         const val PREFS_MOUSE_SENSITIVITY = "mouseSensitivity"
         const val PREFS_SCROLL_SENSITIVITY = "scrollSensitivity"
@@ -28,6 +30,12 @@ class AppRepository(private val context: Context) {
     fun saveAddress(address: String) {
         context.getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE).edit().apply {
             putString(PREFS_ADDRESS, address)
+        }.apply()
+    }
+
+    fun clearAddress() {
+        context.getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE).edit().apply {
+            remove(PREFS_ADDRESS)
         }.apply()
     }
 
@@ -55,6 +63,17 @@ class AppRepository(private val context: Context) {
     fun setScrollSensitivity(value: Float) {
         context.getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE).edit().apply {
             putFloat(PREFS_SCROLL_SENSITIVITY, value)
+        }.apply()
+    }
+
+    fun getCacheItem(key: String): String? {
+        return context.getSharedPreferences(CACHE_STORAGE, Context.MODE_PRIVATE)
+            .getString(key, null)
+    }
+
+    fun putCacheItem(key: String, value: String) {
+        context.getSharedPreferences(CACHE_STORAGE, Context.MODE_PRIVATE).edit().apply {
+            putString(key, value)
         }.apply()
     }
 }

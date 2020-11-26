@@ -29,18 +29,13 @@ class SingleLiveEvent<T> : MutableLiveData<T>() {
         })
     }
 
-    @MainThread
-    override fun setValue(t: T?) {
+    override fun postValue(t: T?) {
         mPending.set(true)
-        super.setValue(t)
+        super.postValue(t)
     }
 
-    /**
-     * Used for cases where T is Void, to make calls cleaner.
-     */
-    @MainThread
     fun call() {
-        value = null
+        postValue(null)
     }
 
     companion object {
